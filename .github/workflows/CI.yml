@@ -48,7 +48,6 @@ jobs:
              ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
 
   release:
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -67,11 +66,10 @@ jobs:
         ls -R
 
     - name: Create release
-      if: github.ref == 'refs/heads/main'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: "windows"
         title: "Latest automated build"
         files: |
                ${{ github.event.repository.name }}/*.7z
