@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+      - 'v*'
+    tags:
+      - v*
+  pull_request:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [run_build]
+
+
+jobs:
+  build:
+    strategy:
+     matrix:
+       toolchain: ["windows-static-x64"] # "linux-x64",
+    runs-on: ubuntu-latest
+    container: dockcross/${{ matrix.toolchain }}:latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: fix ownership, add dependencies and fetch
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        sudo apt-get install --assume-yes p7zip-full
+        git fetch --prune
+
+    - name: Compile project
+      run: |
+        make clean all
+        7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z README.md "${{ github.event.repository.name }}*"
+
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ github.event.repository.name }}
+        path: |
+             ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
+
+  release:
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+
+
+    - uses: actions/checkout@v3
+    - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git fetch --prune --unshallow
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: list
+      run: |
+        ls -R
+
+    - name: Create release
+      if: github.ref == 'refs/heads/main'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: "Latest automated build"
+        files: |
+               ${{ github.event.repository.name }}/*.7z
