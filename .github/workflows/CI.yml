@@ -31,16 +31,8 @@ jobs:
     - name: fix ownership, add dependencies and fetch
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        sudo apt-get install --assume-yes p7zip-full 
-        git fetch --prune
-
-    - name: Create changelog
-      if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
-      run: |
-        echo Latest changes:>>CHANGELOG.MD
-        if [ $(git tag -l "Latest") ]; then COMPARISON="Latest..HEAD"; else COMPARISON=""; fi
-        git --no-pager log $COMPARISON --pretty=format:"- %h  %<(18)%an: %s">>CHANGELOG.MD
-        cat CHANGELOG.MD
+        sudo apt-get install --assume-yes p7zip-full
+        git fetch --prune --unshallow
 
     - name: Compile project
       run: |
@@ -51,19 +43,35 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ github.event.repository.name }}-${{ matrix.toolchain }}
+        name: ${{ github.event.repository.name }}
         path: |
              ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
 
-    - name: Deploy pre-release
-      uses: softprops/action-gh-release@v1
-      if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+  release:
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+
+
+    - uses: actions/checkout@v3
+    - run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git fetch --prune --unshallow
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: list
+      run: |
+        ls -R
+
+    - name: Create release
+      if: github.ref == 'refs/heads/master'
+      uses: marvinpinto/action-automatic-releases@latest
       with:
-        body_path: CHANGELOG.MD
-        token: "${{ secrets.GITHUB_TOKEN }}"
-        fail_on_unmatched_files: true
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: "Latest automated build"
         files: |
-            ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
-        name: "Latest build"
-        tag_name: "Latest"
-        prerelease: true
+               ${{ github.event.repository.name }}/*.7z
