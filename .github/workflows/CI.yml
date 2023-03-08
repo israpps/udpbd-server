@@ -34,6 +34,14 @@ jobs:
         sudo apt-get install --assume-yes p7zip-full 
         git fetch --prune
 
+    - name: Create changelog
+      if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+      run: |
+        echo Latest changes:>>CHANGELOG.MD
+        if [ $(git tag -l "Latest") ]; then COMPARISON="Latest..HEAD"; else COMPARISON=""; fi
+        git --no-pager log $COMPARISON --pretty=format:"- %h  %<(18)%an: %s">>CHANGELOG.MD
+        cat CHANGELOG.MD
+
     - name: Compile project
       run: |
         make clean all
