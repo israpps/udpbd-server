@@ -18,7 +18,7 @@ jobs:
   build:
     strategy:
      matrix:
-       toolchain: ["linux-x86", "linux-x64"] # "windows-static-x86", "windows-static-x64", 
+       toolchain: ["linux-x64"] # "windows-static-x86", "windows-static-x64",
     runs-on: ubuntu-latest
     container: dockcross/${{ matrix.toolchain }}:latest
     steps:
@@ -38,7 +38,7 @@ jobs:
       run: |
         make clean all
         7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z README.md "${{ github.event.repository.name }}*"
-        
+
     - name: Upload artifacts
       if: ${{ success() }}
       uses: actions/upload-artifact@v2
