@@ -2,7 +2,12 @@ BIN=udpbd-server
 OBJS=main.o
 
 udpbd-server: $(OBJS)
-	g++ -o $@ $^
+	
+	g++ -static -static-libgcc -static-libstdc++ -o $@ $^ -lws2_32
+
+main.o: main.cpp
+	g++ -Wall -c -Os main.cpp -o main.o
+
 
 all: $(BIN)
 

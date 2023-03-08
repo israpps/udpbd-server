@@ -16,7 +16,7 @@
 #define UDPBD_CMD_WRITE_DONE  0x06 // server -> client
 
 
-#define UDPBD_MAX_SECTOR_READ  512 // 512 sectors of 512 bytes = 256KiB
+#define UDPBD_MAX_SECTOR_READ  512*512 // 512 sectors of 512 bytes = 256KiB
 
 
 /*
@@ -106,7 +106,8 @@ union block_type
 struct SUDPBDv2_RDMA {
 	struct SUDPBDv2_Header hdr;
     union block_type bt;
-    uint8_t data[RDMA_MAX_PAYLOAD];
+    //uint8_t data[RDMA_MAX_PAYLOAD];
+    uint8_t data2[512*4];
 } __attribute__((__packed__));
 
 
