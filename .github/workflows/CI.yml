@@ -37,7 +37,7 @@ jobs:
     - name: Compile project
       run: |
         make clean all
-        7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z ../README.md "${{ github.event.repository.name }}*"
+        7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z README.md "${{ github.event.repository.name }}*"
         
     - name: Upload artifacts
       if: ${{ success() }}
@@ -45,7 +45,8 @@ jobs:
       with:
         name: ${{ github.event.repository.name }}-${{ matrix.toolchain }}
         path: |
-             build/${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
+             ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
+
     - name: Deploy pre-release
       uses: softprops/action-gh-release@v1
       if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
@@ -54,7 +55,7 @@ jobs:
         token: "${{ secrets.GITHUB_TOKEN }}"
         fail_on_unmatched_files: true
         files: |
-            build/${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
+            ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z
         name: "Latest build"
         tag_name: "Latest"
         prerelease: true
