@@ -32,7 +32,7 @@ jobs:
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         sudo apt-get install --assume-yes p7zip-full
-        git fetch --prune --unshallow
+        git fetch --prune
 
     - name: Compile project
       run: |
