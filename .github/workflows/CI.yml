@@ -37,7 +37,7 @@ jobs:
     - name: Compile project
       run: |
         make clean all
-        7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z ../README.md "${{ github.event.repository.name }}*"
+        7z a -t7z ${{ github.event.repository.name }}-${{ matrix.toolchain }}.7z README.md "${{ github.event.repository.name }}*"
         
     - name: Upload artifacts
       if: ${{ success() }}
