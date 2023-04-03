@@ -10,10 +10,12 @@
 #ifdef __linux__
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#elif _WIN32
+#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #include <windows.h>
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <fileapi.h>
+
 #else
 
 #endif
