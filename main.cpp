@@ -60,14 +60,14 @@ public:
         if (!DeviceIoControl(_fp, FSCTL_LOCK_VOLUME,
                              NULL, 0, NULL, 0, &status, NULL))
         {
-            printf("Error %d attempting to lock device\n", GetLastError());
+            printf("Error %lu attempting to lock device\n", GetLastError());
         }
 
         if (!DeviceIoControl(_fp, FSCTL_DISMOUNT_VOLUME,
                              NULL, 0, NULL, 0, &status, NULL))
         {
             DWORD err = GetLastError();
-            printf("Error %d attempting to dismount volume, error code\n", err);
+            printf("Error %lu attempting to dismount volume, error code\n", err);
         }
 
         // Get the size of the file
@@ -91,7 +91,7 @@ public:
             printf(" - size = %ldMB / %ldMiB, sector size = %ld\n", _fsize / (1000 * 1000), _fsize / (1024 * 1024), sector_size);
         }
         else
-            printf("Error: %d\n", GetLastError());
+            printf("Error: %lu\n", GetLastError());
         fflush(stdout);
     }
 
@@ -141,7 +141,7 @@ public:
                 sector_offset = 0;
         }
         else
-            printf("Error reading sectors: %ld\n", GetLastError());
+            printf("Error reading sectors: %lu\n", GetLastError());
     }
 
     // TODO: This method is not optimized, nonetheless in game write operations are not critical
@@ -165,7 +165,7 @@ public:
         ret = WriteFile(_fp, sector_buffer, aux_size, &rv, NULL);
         // printf("write %ld\n", size);
         if (ret == 0)
-            printf("write error %ld != %ld,%d\n", rv, size, GetLastError());
+            printf("write error %ld != %ld,%lu\n", rv, size, GetLastError());
     }
 
     uint32_t get_sector_size() { return sector_size; }
@@ -210,7 +210,7 @@ public:
         // create a UDP socket
         if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
         {
-            printf("%d\n", GetLastError());
+            printf("%lu\n", GetLastError());
             throw runtime_error("socket");
         }
 
